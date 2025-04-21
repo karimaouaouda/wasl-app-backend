@@ -21,4 +21,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
+Route::get('/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])->name('orders.create');
 require __DIR__.'/auth.php';

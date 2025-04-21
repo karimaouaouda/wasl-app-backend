@@ -20,10 +20,16 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'username',
         'name',
         'email',
         'password',
     ];
+
+    public function getAtUserNameAttribute(): string
+    {
+        return sprintf("@%s", $this->getAttribute('username'));
+    }
 
     /**
      * The attributes that should be hidden for serialization.

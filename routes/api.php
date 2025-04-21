@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,7 @@ Route::get('/test', function() {
     return response()->json(['message' => 'Hello, World!']);
 });
 
-//authentification
+//authentication
 Route::controller(AuthController::class)
     ->group(function () {
         Route::post('/login', 'login');
@@ -24,7 +25,8 @@ Route::controller(AuthController::class)
         Route::post('/logout', 'logout')->middleware('auth:sanctum');
     });
 
-Route::middleware('auth:sanctum')
-    ->group(function(){
-        
+Route::controller(OrderController::class)
+    ->group(function () {
+        Route::resource('orders', OrderController::class)
+            ->except(['destroy']);
     });

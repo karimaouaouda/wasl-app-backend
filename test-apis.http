@@ -1,0 +1,52 @@
+POST http://localhost:8000/api/orders
+X-Requested-With: XMLHttpRequest
+Content-Type: application/json
+
+{
+    "source_app": "sourceapp",
+    "restaurant_data": {
+        "name": "mandimajeed",
+        "logo_url": "https://i.ibb.co/Xsfz9xs/logo.png",
+        "description": "mandi majeed restaurant for fast food",
+        "contact": {
+            "phone": "+213655766709",
+            "whatsapp": "+213655766709"
+        },
+        "profiles": {
+            "facebook": "https://www.facebook.com/judoka24"
+        }
+    },
+    "items": [
+        {
+            "quantity": 2,
+            "item_name": "cheese burger xl",
+            "price": 110.00
+        },
+        {
+            "quantity": 1,
+            "item_name": "coca cola 2l",
+            "price": 40.00
+        }
+    ],
+    "client_data": {
+        "name": "karim aouaouda",
+        "address": "hiahem abdelhamid hiliopolis",
+        "position": {
+            "lat": 1.25156,
+            "long": 1.2156
+        },
+        "contact": {
+            "phone": "+213655766709",
+            "whatsapp": "+213655766709"
+        }
+    }
+}
+
+###
+GET http://localhost:80/api/item?id=99
+Accept: application/json
+
+### test orders endpoints
+GET http://localhost:8000/api/orders
+Accept: application/json
+
