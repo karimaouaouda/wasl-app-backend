@@ -35,7 +35,9 @@ class OrderController extends Controller
      */
     public function active()
     {
-        $orders = Order::query()->get();
+        $orders = Order::query()
+            ->whereIn('status', ['preparing', 'ready'])
+            ->get();
 
         return $orders->toResourceCollection();
     }
@@ -83,6 +85,8 @@ class OrderController extends Controller
     {
         // show a specific order, because we use work as API, we will return the order resource
         return $order
+            ->with('items')
+            ->first()
             ->toResource();
     }
 

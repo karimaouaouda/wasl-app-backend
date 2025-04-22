@@ -1,3 +1,9 @@
+GET http://localhost:8000/api/orders/1
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 2|4rWVGNZfOi32BcvIt5n4i4Ifkxtifzr1wKobiCNz8d8951e6
+Accept: application/json
+
+###
 GET http://localhost:8000/api/orders/active
 X-Requested-With: XMLHttpRequest
 Authorization: Bearer 2|4rWVGNZfOi32BcvIt5n4i4Ifkxtifzr1wKobiCNz8d8951e6

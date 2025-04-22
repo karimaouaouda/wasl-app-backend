@@ -32,15 +32,17 @@ Route::controller(AuthController::class)
             ->middleware('auth:sanctum');
     });
 
-Route::resource('orders', OrderController::class)
-    ->middleware('auth:sanctum')
-    ->except(['destroy']);
+
+
+
 
 Route::controller(OrderController::class)
     ->prefix('orders')
     ->group(function () {
         Route::middleware('auth:sanctum')
             ->group(function() {
+                Route::get('/active', 'active');
+
                 Route::post('/confirm', 'confirm');
 
                 Route::post('/cancel', 'cancel');
@@ -53,7 +55,10 @@ Route::controller(OrderController::class)
 
             });
     });
-Route::get('orders/active', [OrderController::class, 'active']);
+
+Route::resource('orders', OrderController::class)
+    ->middleware('auth:sanctum')
+    ->except(['destroy']);
 
 Route::get('/test-api', function(){
     return response()->json([
