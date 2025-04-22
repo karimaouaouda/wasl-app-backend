@@ -51,9 +51,9 @@ Route::controller(OrderController::class)
 
                 Route::get('/{user}/finished', 'finished');
 
-                Route::get('/active', 'active');
             });
     });
+Route::get('orders/active', [OrderController::class, 'active']);
 
 Route::get('/test-api', function(){
     return response()->json([

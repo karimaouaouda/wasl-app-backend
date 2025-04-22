@@ -8,11 +8,15 @@ enum OrderStatus: string implements  Arrayable
 {
     case PREPARING = 'preparing'; // restaurant is preparing the order
 
-    case FINISHED = 'finished'; // order arrived to client
-
     case CANCELLED = 'cancelled'; // order canceled from the client
 
     case READY = 'ready'; // order ready to pickup
+
+    case ACCEPTED = 'accepted';
+
+    case PICKED = 'picked';
+
+    case COMPLETED = 'completed';
 
     public static function values(): array
     {

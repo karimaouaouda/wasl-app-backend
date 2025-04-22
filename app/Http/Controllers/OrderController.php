@@ -23,7 +23,7 @@ class OrderController extends Controller
     public function index(): \Illuminate\Http\Resources\Json\ResourceCollection
     {
         // return only who has many items at least one
-        $orders = Order::has('items')->with('items')->get();
+        $orders = Order::has('items')->whereIn('status', ['preparing', 'ready'])->with('items')->get();
 
 
         return $orders
@@ -33,10 +33,9 @@ class OrderController extends Controller
     /**
      * @throws \Throwable
      */
-    public function  active()
+    public function active()
     {
-        $orders = Order::query()
-            ->whereIn('status', [OrderStatus::PREPARING->value,OrderStatus::READY->value ])->get();
+        $orders = Order::query()->get();
 
         return $orders->toResourceCollection();
     }
@@ -127,7 +126,7 @@ class OrderController extends Controller
         $order = Order::query()
                         ->findOrFail($order_id);
 
-        if ($order->getAttribute('status') == OrderStatus::FINISHED->value){
+        if ( !in_array($order->getAttribute('status'), ['preparing', 'ready'])){
             return response()->json([
                 'message' => 'Order already finished.',
             ], 400);
@@ -139,7 +138,7 @@ class OrderController extends Controller
         DB::transaction(function() use ($order, $user, $order_id){
 
             $order->update([
-                'status' => OrderStatus::FINISHED->value
+                'status' => OrderStatus::ACCEPTED->value
             ]);
 
             $user->orders()->attach($order_id, [

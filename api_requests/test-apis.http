@@ -1,12 +1,12 @@
 GET http://localhost:8000/api/orders/active
 X-Requested-With: XMLHttpRequest
-Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Authorization: Bearer 2|4rWVGNZfOi32BcvIt5n4i4Ifkxtifzr1wKobiCNz8d8951e6
 Accept: application/json
 
 ###
 POST http://localhost:80/api/item
 X-Requested-With: XMLHttpRequest
-Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Authorization: Bearer 2|4rWVGNZfOi32BcvIt5n4i4Ifkxtifzr1wKobiCNz8d8951e6
 Accept: application/json
 Content-Type: application/json
 
@@ -23,7 +23,7 @@ Accept: application/json
 ###
 GET http://localhost:8000/api/orders/1/today
 X-Requested-With: XMLHttpRequest
-Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Authorization: Bearer Authorization: Bearer 2|4rWVGNZfOi32BcvIt5n4i4Ifkxtifzr1wKobiCNz8d8951e6
 Accept: application/json
 
 ###

@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignId('order_id')
                 ->constrained('orders')
                 ->onUpdate('cascade');
-            $table->enum('status', ['accepted', 'rejected', 'picked', 'finished'])
+            $table->enum('status', \App\Enums\DeliveryStatus::values())
                 ->default('accepted');
             $table->timestamp('updated_at');
         });
