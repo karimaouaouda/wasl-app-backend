@@ -21,5 +21,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
 });
 
-Route::get('/orders/create', [\App\Http\Controllers\OrderController::class, 'create'])->name('orders.create');
+Route::get('fire', function(){
+   $order = \App\Models\Order::query()->first();
+   \App\Events\OrderCreated::dispatch($order);
+   return "event fired";
+});
+
 require __DIR__.'/auth.php';

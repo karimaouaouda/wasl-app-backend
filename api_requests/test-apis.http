@@ -1,3 +1,43 @@
+GET http://localhost:8000/api/orders/active
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Accept: application/json
+
+###
+POST http://localhost:80/api/item
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Accept: application/json
+Content-Type: application/json
+
+{
+    "order_id": 1
+}
+
+###
+GET http://localhost:8000/api/orders/1/finished
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Accept: application/json
+
+###
+GET http://localhost:8000/api/orders/1/today
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Accept: application/json
+
+###
+POST http://localhost:8000/api/orders/confirm
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752
+Content-Type: application/json
+
+{
+    "order_id": "1"
+}
+
+###
+
 POST http://localhost:8000/api/orders
 X-Requested-With: XMLHttpRequest
 Content-Type: application/json
@@ -48,5 +88,6 @@ Accept: application/json
 
 ### test orders endpoints
 GET http://localhost:8000/api/orders
+X-Requested-With: XMLHttpRequest
 Accept: application/json
-
+Authorization: Bearer 1|jIRsVtIYrOS4zjJRar9QVUrXShC10HTkM8jhT6Ss6c317752

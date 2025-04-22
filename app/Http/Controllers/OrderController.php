@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\OrderResource;
+use App\Enums\OrderStatus;
+use App\Events\OrderCanceled;
 use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Nette\NotImplementedException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -24,6 +28,17 @@ class OrderController extends Controller
 
         return $orders
             ->toResourceCollection(); // convert to HTTP Resource
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function  active()
+    {
+        $orders = Order::query()
+            ->whereIn('status', [OrderStatus::PREPARING->value,OrderStatus::READY->value ])->get();
+
+        return $orders->toResourceCollection();
     }
 
     /**
@@ -95,4 +110,130 @@ class OrderController extends Controller
     {
         throw new NotImplementedException("this page un available");
     }
+
+    // custom functions
+
+    /**
+     * @throws \Throwable
+     */
+    public function confirm(Request $request)
+    {
+        $request->validate([
+            'order_id' => ['required', 'exists:orders,id'],
+        ]);
+
+        $order_id = $request->get('order_id');
+
+        $order = Order::query()
+                        ->findOrFail($order_id);
+
+        if ($order->getAttribute('status') == OrderStatus::FINISHED->value){
+            return response()->json([
+                'message' => 'Order already finished.',
+            ], 400);
+        }
+
+
+        $user = Auth::user();
+
+        DB::transaction(function() use ($order, $user, $order_id){
+
+            $order->update([
+                'status' => OrderStatus::FINISHED->value
+            ]);
+
+            $user->orders()->attach($order_id, [
+                'updated_at' => now(),
+            ]);
+        }, 2);
+
+        return response()->json([
+            'success' => 'Order accepted successfully.',
+        ], 200);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function today(User $user){
+        if( $user->isAdmin() ){
+            return response()->json([
+                'message' => 'you must be user not admin'
+            ], 401);
+        }
+
+        return $user->orders()
+            ->wherePivotIn('status', ['accepted', 'picked'])
+            ->get()
+            ->toResourceCollection();
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function finished(User $user): \Illuminate\Http\Resources\Json\ResourceCollection|\Illuminate\Http\JsonResponse
+    {
+        if( $user->isAdmin() ){
+            return response()->json([
+                'message' => 'you must be user not admin'
+            ], 401);
+        }
+
+        return $user->orders()
+            ->wherePivot('status', 'finished')
+            ->get()
+            ->toResourceCollection();
+    }
+
+    public function reject(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'order_id' => ['required', 'exists:orders,id'],
+        ]);
+
+        $order_id = $request->get('order_id');
+        $order = Order::query()
+            ->findOrFail($order_id);
+
+        $user = Auth::user();
+
+        // reject the order from the user
+        $user->orders()->create($order_id, [
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => 'Order rejected successfully.',
+        ], 200);
+    }
+
+    public function cancel(Request $request)
+    {
+        $request->validate([
+            'order_id' => ['required', 'exists:orders,id']
+        ]);
+
+        $order_id = $request->input('order_id');
+
+        // TODO implement authorization for this action
+
+        $order = Order::query()
+            ->findOrFail($order_id);
+        try{
+            $order->update([
+                'status' => OrderStatus::CANCELLED->value
+            ]);
+
+            OrderCanceled::dispatch($order);
+        }catch(\Exception $e){
+            return response()->json([
+                'message' => 'some error occured'
+            ], 400);
+        }
+
+        return response()->json([
+            'message' => 'order canceled successfully'
+        ]);
+    }
+
 }

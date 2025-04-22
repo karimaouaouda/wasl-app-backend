@@ -2,7 +2,9 @@
 
 namespace App\Enums;
 
-enum OrderStatus: string
+use Illuminate\Contracts\Support\Arrayable;
+
+enum OrderStatus: string implements  Arrayable
 {
     case PREPARING = 'preparing'; // restaurant is preparing the order
 
@@ -15,8 +17,18 @@ enum OrderStatus: string
     public static function values(): array
     {
         $values = [];
-        foreach (OrderStatus::cases() as $case) {
+        foreach (OrderStatus::cases() as $case){
             $values[] = $case->value;
+        }
+
+        return $values;
+    }
+
+    public function toArray(): array
+    {
+        $values = [];
+        foreach (OrderStatus::cases() as $case) {
+            $values[$case->value] = $case->name;
         }
 
         return $values;

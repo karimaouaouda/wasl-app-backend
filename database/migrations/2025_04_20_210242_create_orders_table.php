@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('source_app');
             $table->json('restaurant_data');
+            $table->json('client_data');
             $table->enum('status', \App\Enums\OrderStatus::values())
                 ->default(\App\Enums\OrderStatus::PREPARING->value);
             $table->timestamps();

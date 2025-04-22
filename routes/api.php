@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OrderController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -11,6 +12,11 @@ Route::get('/user', function (Request $request) {
         'token' => $request->bearerToken(),
     ]);
 })->middleware('auth:sanctum');
+
+Route::get('/users/{user}', function(\App\Models\User $user){
+    return $user
+            ->toResource();
+});
 
 
 Route::get('/test', function() {
@@ -22,11 +28,35 @@ Route::controller(AuthController::class)
     ->group(function () {
         Route::post('/login', 'login');
         Route::post('/register', 'register');
-        Route::post('/logout', 'logout')->middleware('auth:sanctum');
+        Route::post('/logout', 'logout')
+            ->middleware('auth:sanctum');
     });
 
+Route::resource('orders', OrderController::class)
+    ->middleware('auth:sanctum')
+    ->except(['destroy']);
+
 Route::controller(OrderController::class)
+    ->prefix('orders')
     ->group(function () {
-        Route::resource('orders', OrderController::class)
-            ->except(['destroy']);
+        Route::middleware('auth:sanctum')
+            ->group(function() {
+                Route::post('/confirm', 'confirm');
+
+                Route::post('/cancel', 'cancel');
+
+                Route::post('/reject', 'reject');
+
+                Route::get('/{user}/today', 'today');
+
+                Route::get('/{user}/finished', 'finished');
+
+                Route::get('/active', 'active');
+            });
     });
+
+Route::get('/test-api', function(){
+    return response()->json([
+        'message' => 'every thing work fine'
+    ], 200);
+});

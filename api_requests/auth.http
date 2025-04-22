@@ -1,0 +1,28 @@
+POST http://localhost:8000/api/logout
+X-Requested-With: XMLHttpRequest
+Authorization: Bearer 2|MTKbouQONPl5TzTVvwIxSr1xawpxtPRORObaH1zm930e75a1
+
+
+###
+POST http://localhost:8000/api/register
+X-Requested-With: XMLHttpRequest
+Content-Type: application/json
+
+{
+    "name": "karim aouaouda",
+    "email": "karimaouaouda.officiel@gmail.com",
+    "password": "cpplang24",
+    "password_confirmation": "cpplang24"
+}
+
+###
+POST http://localhost:8000/api/login
+X-Requested-With: XMLHttpRequest
+Content-Type: application/json
+
+{
+    "email": "karimaouaouda.officiel@gmail.com",
+    "password": "cpplang24"
+}
+
+
