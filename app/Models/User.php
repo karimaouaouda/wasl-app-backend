@@ -13,7 +13,7 @@ use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * 
+ *
  *
  * @property int $id
  * @property string|null $username
@@ -109,7 +109,7 @@ class User extends Authenticatable implements FilamentUser
     // relations
     public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class, 'user_orders');
+        return $this->belongsToMany(Order::class, 'user_orders')->withPivot(['status']);
     }
 
     /**

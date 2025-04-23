@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
+use App\Events\OrderAccepted;
 use App\Events\OrderCanceled;
 use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
@@ -148,7 +150,9 @@ class OrderController extends Controller
             $user->orders()->attach($order_id, [
                 'updated_at' => now(),
             ]);
-        }, 2);
+        });
+
+        OrderAccepted::dispatch($order);
 
         return response()->json([
             'success' => 'Order accepted successfully.',
@@ -158,7 +162,7 @@ class OrderController extends Controller
     /**
      * @throws \Throwable
      */
-    public function today(User $user){
+    public function today(User $user, Request $request){
         if( $user->isAdmin() ){
             return response()->json([
                 'message' => 'you must be user not admin'
@@ -176,14 +180,14 @@ class OrderController extends Controller
      */
     public function finished(User $user): \Illuminate\Http\Resources\Json\ResourceCollection|\Illuminate\Http\JsonResponse
     {
-        if( $user->isAdmin() ){
+        /* if( $user->isAdmin() ){
             return response()->json([
                 'message' => 'you must be user not admin'
             ], 401);
-        }
+        } */
 
         return $user->orders()
-            ->wherePivot('status', 'finished')
+            ->wherePivot('status', DeliveryStatus::COMPLETED->value)
             ->get()
             ->toResourceCollection();
     }
@@ -237,6 +241,45 @@ class OrderController extends Controller
         return response()->json([
             'message' => 'order canceled successfully'
         ]);
+    }
+
+    public function complete(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $request->validate([
+            'order_id' => ['required', 'exists:orders,id']
+        ]);
+
+        $user = Auth::user();
+        $order_id = $request->input('order_id');
+
+        $order = $user->orders()
+            ->wherePivot('order_id', '=', $order_id)
+            ->first();
+
+        if( !$order ){
+            return response()->json([
+                'message' => 'you have no order to complete'
+            ], 400);
+        }
+
+        if($order->pivot->status == DeliveryStatus::REJECTED->value){
+            return response()->json([
+                'message' => 'you already reject this order!'
+            ], 400);
+        }
+
+        DB::transaction(function() use ($order){
+            $order->pivot->status = DeliveryStatus::COMPLETED->value;
+            $order->pivot->save();
+
+
+            $order->status = OrderStatus::COMPLETED->value;
+            $order->save();
+        });
+
+        return response()->json([
+            'success' => 'order completed successfully'
+        ], 200);
     }
 
 }

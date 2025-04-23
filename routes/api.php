@@ -49,6 +49,8 @@ Route::controller(OrderController::class)
 
                 Route::post('/reject', 'reject');
 
+                Route::post('/complete', 'complete');
+
                 Route::get('/{user}/today', 'today');
 
                 Route::get('/{user}/finished', 'finished');

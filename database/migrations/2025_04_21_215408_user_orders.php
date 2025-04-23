@@ -21,6 +21,7 @@ return new class extends Migration
                 ->onUpdate('cascade');
             $table->enum('status', \App\Enums\DeliveryStatus::values())
                 ->default('accepted');
+            $table->mediumText('reject_reason')->nullable();
             $table->timestamp('updated_at');
         });
     }
