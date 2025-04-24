@@ -315,4 +315,28 @@ class OrderController extends Controller
         ], 200);
     }
 
+    public function pickup(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'order_id' => ['required', 'exists:orders,id']
+        ]);
+
+        $order_id = $request->input('order_id');
+
+        $order = $user->orders()->wherePivot('order_id', '=', '$order_id')->first();
+
+        if( !$order ){
+            return response()->json([
+                'message' => 'you must accept this order to pick it'
+            ], 400);
+        }
+        $order->pivot->status = DeliveryStatus::PICKED->value;
+        $order->pivot->save();
+
+        return response()->json([
+            'success' => 'order picked successfully'
+        ], 200);
+    }
 }

@@ -51,6 +51,8 @@ Route::controller(OrderController::class)
 
                 Route::post('/complete', 'complete');
 
+                Route::post('pickup', 'pickup');
+
                 Route::get('/{user}/today', 'today');
 
                 Route::get('/{user}/finished', 'finished');
