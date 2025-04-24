@@ -62,6 +62,7 @@ Route::resource('orders', OrderController::class)
     ->middleware('auth:sanctum')
     ->except(['destroy']);
 
+
 Route::get('/test-api', function(){
     return response()->json([
         'message' => 'every thing work fine'

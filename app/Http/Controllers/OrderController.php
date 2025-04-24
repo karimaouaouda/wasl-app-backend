@@ -86,9 +86,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // show a specific order, because we use work as API, we will return the order resource
-        return $order
-            ->with('items')
-            ->first()
+        return $order->load('items')
             ->toResource();
     }
 
@@ -198,11 +196,21 @@ class OrderController extends Controller
             'order_id' => ['required', 'exists:orders,id'],
         ]);
 
+        $user = Auth::user();
+
+        if( $user->isAdmin() ){
+            $user->currentAccessToken()->delete(); // unvalidate the current token
+
+            return response()->json([
+                'you are not authorized'
+            ], 401);
+        }
+
         $order_id = $request->get('order_id');
         $order = Order::query()
             ->findOrFail($order_id);
 
-        $user = Auth::user();
+
 
         // reject the order from the user
         $user->orders()->create($order_id, [
