@@ -11,6 +11,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Nette\NotImplementedException;
@@ -18,14 +19,28 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrderController extends Controller
 {
+
+    public function __construct(protected Logger $logger){}
     /**
      * Display a listing of the resource.
      * @throws \Throwable
      */
     public function index(): \Illuminate\Http\Resources\Json\ResourceCollection
     {
+        $user = Auth::user();
+
+        $rejected_ids = $user->orders()
+            ->wherePivot('status', '=', DeliveryStatus::REJECTED->value)
+            ->get(['id'])
+            ->pluck('id')
+            ->toArray();
+
         // return only who has many items at least one
-        $orders = Order::has('items')->whereIn('status', ['preparing', 'ready'])->with('items')->get();
+        $orders = Order::has('items')
+            ->whereIn('status', ['preparing', 'ready'])
+            ->whereNotIn('id', array_values($rejected_ids))
+            ->with('items')
+            ->get();
 
 
         return $orders
@@ -37,8 +52,17 @@ class OrderController extends Controller
      */
     public function active()
     {
+        $user = Auth::user();
+
+        $rejected_ids = $user->orders()
+            ->wherePivot('status', '=', DeliveryStatus::REJECTED->value)
+            ->get(['order_id'])
+            ->pluck('order_id')
+            ->toArray();
+
         $orders = Order::query()
             ->whereIn('status', ['preparing', 'ready'])
+            ->whereNotIn('id', array_values($rejected_ids))
             ->get();
 
         return $orders->toResourceCollection();
@@ -213,8 +237,9 @@ class OrderController extends Controller
 
 
         // reject the order from the user
-        $user->orders()->create($order_id, [
+        $user->orders()->attach([$order_id], [
             'updated_at' => now(),
+            'status' => DeliveryStatus::REJECTED->value
         ]);
 
         return response()->json([
