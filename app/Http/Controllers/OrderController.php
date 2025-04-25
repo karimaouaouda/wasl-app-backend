@@ -10,6 +10,9 @@ use App\Models\Order;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\User;
+use App\Services\OrderService;
+use App\Traits\ResponseTrait;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Log\Logger;
 use Illuminate\Support\Facades\Auth;
@@ -19,8 +22,9 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class OrderController extends Controller
 {
+    use ResponseTrait;
+    public function __construct(protected Logger $logger, protected OrderService $orderService){}
 
-    public function __construct(protected Logger $logger){}
     /**
      * Display a listing of the resource.
      * @throws \Throwable
@@ -202,16 +206,8 @@ class OrderController extends Controller
      */
     public function finished(User $user): \Illuminate\Http\Resources\Json\ResourceCollection|\Illuminate\Http\JsonResponse
     {
-        /* if( $user->isAdmin() ){
-            return response()->json([
-                'message' => 'you must be user not admin'
-            ], 401);
-        } */
 
-        return $user->orders()
-            ->wherePivot('status', DeliveryStatus::COMPLETED->value)
-            ->get()
-            ->toResourceCollection();
+        return $this->orderService->finished();
     }
 
     public function reject(Request $request): \Illuminate\Http\JsonResponse
@@ -220,31 +216,9 @@ class OrderController extends Controller
             'order_id' => ['required', 'exists:orders,id'],
         ]);
 
-        $user = Auth::user();
+        $order = Order::findOrFail($request->input('order_id'));
 
-        if( $user->isAdmin() ){
-            $user->currentAccessToken()->delete(); // unvalidate the current token
-
-            return response()->json([
-                'you are not authorized'
-            ], 401);
-        }
-
-        $order_id = $request->get('order_id');
-        $order = Order::query()
-            ->findOrFail($order_id);
-
-
-
-        // reject the order from the user
-        $user->orders()->attach([$order_id], [
-            'updated_at' => now(),
-            'status' => DeliveryStatus::REJECTED->value
-        ]);
-
-        return response()->json([
-            'success' => 'Order rejected successfully.',
-        ], 200);
+        return $this->orderService->reject($order);
     }
 
     public function cancel(Request $request)
@@ -282,61 +256,24 @@ class OrderController extends Controller
             'order_id' => ['required', 'exists:orders,id']
         ]);
 
-        $user = Auth::user();
         $order_id = $request->input('order_id');
 
-        $order = $user->orders()
-            ->wherePivot('order_id', '=', $order_id)
-            ->first();
+        $order = Order::query()->findOrFail($order_id);
 
-        if( !$order ){
-            return response()->json([
-                'message' => 'you have no order to complete'
-            ], 400);
-        }
-
-        if($order->pivot->status == DeliveryStatus::REJECTED->value){
-            return response()->json([
-                'message' => 'you already reject this order!'
-            ], 400);
-        }
-
-        DB::transaction(function() use ($order){
-            $order->pivot->status = DeliveryStatus::COMPLETED->value;
-            $order->pivot->save();
-
-
-            $order->status = OrderStatus::COMPLETED->value;
-            $order->save();
-        });
-
-        return response()->json([
-            'success' => 'order completed successfully'
-        ], 200);
+        return $this->orderService->complete($order);
     }
 
+    /**
+     * @throws AuthorizationException
+     */
     public function pickup(Request $request): \Illuminate\Http\JsonResponse
     {
-        $user = Auth::user();
-
         $request->validate([
             'order_id' => ['required', 'exists:orders,id']
         ]);
 
-        $order_id = $request->input('order_id');
+        $order = Order::query()->findOrFail($request->input('order_id'));
 
-        $order = $user->orders()->wherePivot('order_id', '=', '$order_id')->first();
-
-        if( !$order ){
-            return response()->json([
-                'message' => 'you must accept this order to pick it'
-            ], 400);
-        }
-        $order->pivot->status = DeliveryStatus::PICKED->value;
-        $order->pivot->save();
-
-        return response()->json([
-            'success' => 'order picked successfully'
-        ], 200);
+        return $this->orderService->pickup($order);
     }
 }
