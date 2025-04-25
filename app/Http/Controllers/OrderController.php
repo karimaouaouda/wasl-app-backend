@@ -189,16 +189,7 @@ class OrderController extends Controller
      * @throws \Throwable
      */
     public function today(User $user, Request $request){
-        if( $user->isAdmin() ){
-            return response()->json([
-                'message' => 'you must be user not admin'
-            ], 401);
-        }
-
-        return $user->orders()
-            ->wherePivotIn('status', ['accepted', 'picked'])
-            ->get()
-            ->toResourceCollection();
+        return $this->orderService->today();
     }
 
     /**
@@ -206,7 +197,6 @@ class OrderController extends Controller
      */
     public function finished(User $user): \Illuminate\Http\Resources\Json\ResourceCollection|\Illuminate\Http\JsonResponse
     {
-
         return $this->orderService->finished();
     }
 

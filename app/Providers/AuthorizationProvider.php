@@ -130,5 +130,16 @@ class AuthorizationProvider extends ServiceProvider
             return Response::allow();
         });
 
+        Gate::define('fetch-today-orders', function (User $user) {
+            if( $user->isAdmin() ){
+                $user->currentAccessToken()->delete();
+                return Response::denyWithStatus(
+                    401,
+                    'admins not allowed to dealing with orders'
+                );
+            }
+
+            return Response::allow();
+        });
     }
 }

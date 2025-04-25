@@ -90,7 +90,12 @@ class OrderService
 
     public function today(): \Illuminate\Http\JsonResponse
     {
+        Gate::authorize('fetch-today-orders');
 
+        return $user->orders()
+            ->wherePivotIn('status', ['accepted', 'picked'])
+            ->get()
+            ->toResourceCollection();
     }
 
     public function active(): \Illuminate\Http\JsonResponse
