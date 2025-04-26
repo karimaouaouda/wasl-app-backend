@@ -21,14 +21,14 @@ class OrderService
     public function pickup(Order $order): \Illuminate\Http\JsonResponse
     {
         Gate::authorize('pickup-order', $order);
-
-        $order->pivot->status = DeliveryStatus::PICKED->value;
-        $order->pivot->save();
+        $user = Auth::user();
+        $user->orders()->updateExistingPivot($order->id, [
+            'status' => DeliveryStatus::PICKED->value
+        ]);
 
         return $this->success([
             'success' => 'order picked successfully'
         ]);
-
     }
 
     /**
@@ -88,12 +88,14 @@ class OrderService
             ->toResourceCollection();
     }
 
-    public function today(): \Illuminate\Http\JsonResponse
+    public function today(): \Illuminate\Http\Resources\Json\ResourceCollection
     {
         Gate::authorize('fetch-today-orders');
 
+        $user = Auth::user();
+
         return $user->orders()
-            ->wherePivotIn('status', ['accepted', 'picked'])
+            ->wherePivotIn('status', [DeliveryStatus::ACCEPTED->value, DeliveryStatus::PICKED->value])
             ->get()
             ->toResourceCollection();
     }

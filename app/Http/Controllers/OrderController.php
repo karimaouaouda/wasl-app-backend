@@ -188,7 +188,8 @@ class OrderController extends Controller
     /**
      * @throws \Throwable
      */
-    public function today(User $user, Request $request){
+    public function today(User $user, Request $request): \Illuminate\Http\Resources\Json\ResourceCollection
+    {
         return $this->orderService->today();
     }
 
