@@ -141,5 +141,9 @@ class AuthorizationProvider extends ServiceProvider
 
             return Response::allow();
         });
+
+        Gate::define('show-order', function (User $user ,Order $order){
+            return true;
+        });
     }
 }

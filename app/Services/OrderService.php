@@ -17,6 +17,7 @@ class OrderService
 
     /**
      * @throws AuthorizationException
+     * @throws \Throwable
      */
     public function pickup(Order $order): \Illuminate\Http\JsonResponse
     {
@@ -27,7 +28,8 @@ class OrderService
         ]);
 
         return $this->success([
-            'success' => 'order picked successfully'
+            'success' => 'order picked successfully',
+            'order' => $this->show($order)
         ]);
     }
 
@@ -39,16 +41,21 @@ class OrderService
     {
         Gate::authorize('complete-order', $order);
 
-        DB::transaction(function() use ($order){
-            $order->pivot->status = DeliveryStatus::COMPLETED->value;
-            $order->pivot->save();
+        $user = Auth::user();
 
+        DB::transaction(function() use ($order, $user){
 
+            $user->orders()->updateExistingPivot($order->id, [
+                'status' => DeliveryStatus::COMPLETED->value
+            ]);
             $order->status = OrderStatus::COMPLETED->value;
             $order->save();
         });
 
-        return $this->success('order completed successfully');
+        return $this->success([
+            'success' => 'order completed successfully',
+            'order' => $this->show($order)
+        ]);
     }
 
     /**
@@ -103,5 +110,15 @@ class OrderService
     public function active(): \Illuminate\Http\JsonResponse
     {
 
+    }
+
+    /**
+     * @throws AuthorizationException
+     * @throws \Throwable
+     */
+    public function show(Order $order){
+        Gate::authorize('show-order', $order);
+        return $order->load(['items', 'users'])
+            ->toResource();
     }
 }

@@ -114,8 +114,7 @@ class OrderController extends Controller
     public function show(Order $order)
     {
         // show a specific order, because we use work as API, we will return the order resource
-        return $order->load('items')
-            ->toResource();
+        return $this->orderService->show($order);
     }
 
     /**
@@ -180,9 +179,10 @@ class OrderController extends Controller
 
         OrderAccepted::dispatch($order);
 
-        return response()->json([
+        return $this->success([
             'success' => 'Order accepted successfully.',
-        ], 200);
+            'order' => $this->show($order)
+        ]);
     }
 
     /**
@@ -241,6 +241,10 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * @throws \Throwable
+     * @throws AuthorizationException
+     */
     public function complete(Request $request): \Illuminate\Http\JsonResponse
     {
         $request->validate([

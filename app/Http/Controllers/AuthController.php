@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\LoginRequest;
 use App\Models\User;
+use App\Traits\ResponseTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 /**
@@ -12,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
  */
 class AuthController extends Controller
 {
+    use ResponseTrait;
     public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
 
@@ -21,19 +23,21 @@ class AuthController extends Controller
             $user = Auth::user();
             $token = $user->createToken('auth_token')->plainTextToken;
 
-            return response()->json([
-                'message' => 'Login successful',
+            return $this->success([
+                'success' => 'Login successful',
                 'token' => $token,
                 'user' => $user->toResource(),
             ]);
         }
 
-        return response()->json([
-            'message' => 'Invalid credentials'],
-            401);
+        return $this->error(['message' => 'Invalid credentials']);
     }
 
-    public function register(CreateUserRequest $request){
+    /**
+     * @throws \Throwable
+     */
+    public function register(CreateUserRequest $request): \Illuminate\Http\JsonResponse
+    {
         $user = User::create($request->validated());
 
         $user->save();
@@ -42,8 +46,8 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
-            'message' => 'Login successful',
+        return $this->success([
+            'success' => 'Login successful',
             'token' => $token,
             'user' => $user->toResource(),
         ]);
@@ -51,8 +55,8 @@ class AuthController extends Controller
 
     public function logout(Request $request){
         $user = $request->user()->currentAccessToken()->delete();
-        return response()->json([
-            'message' => 'Logout successful',
+        return $this->success([
+            'success' => 'Logout successful',
         ]);
     }
 }

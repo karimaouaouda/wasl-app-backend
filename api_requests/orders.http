@@ -1,0 +1,18 @@
+POST http://localhost:8000/api/orders/confirm
+Authorization: Bearer 14|vlRwHUpL43IErrzh61l5KjnfaL9a2YSK1Xs3MKO8fde788c1
+X-Requested-With: XMLHttpRequest
+Accept: application/json
+Content-Type: application/json
+
+{
+    "order_id": "1"
+}
+
+###
+
+GET http://localhost:8000/api/orders/2
+Authorization: Bearer 14|vlRwHUpL43IErrzh61l5KjnfaL9a2YSK1Xs3MKO8fde788c1
+X-Requested-With: XMLHttpRequest
+Accept: application/json
+
+###
