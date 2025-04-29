@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\OrderEvents;
 
 use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
@@ -9,7 +9,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderPickedUpEvent implements ShouldBroadcast
+class OrderAccepted implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -17,9 +17,7 @@ class OrderPickedUpEvent implements ShouldBroadcast
      * Create a new event instance.
      */
     public function __construct(public Order $order)
-    {
-        //
-    }
+    {}
 
     /**
      * Get the channels the event should broadcast on.
@@ -29,7 +27,7 @@ class OrderPickedUpEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('order.pickedUp'),
+            new Channel('order.accepted')
         ];
     }
 }

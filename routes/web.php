@@ -23,7 +23,7 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('fire', function(){
    $order = \App\Models\Order::query()->first();
-   \App\Events\OrderCreated::dispatch($order);
+   \App\Events\OrderEvents\OrderCreated::dispatch($order);
    return "event fired";
 });
 

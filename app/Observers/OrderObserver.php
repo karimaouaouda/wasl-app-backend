@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
-use App\Events\OrderAccepted;
-use App\Events\OrderCreated;
-use App\Events\OrderDeleted;
+use App\Events\OrderEvents\OrderAccepted;
+use App\Events\OrderEvents\OrderCreated;
+use App\Events\OrderEvents\OrderDeleted;
 use App\Models\Order;
 
 class OrderObserver

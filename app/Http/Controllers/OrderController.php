@@ -4,11 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Enums\DeliveryStatus;
 use App\Enums\OrderStatus;
-use App\Events\OrderAccepted;
-use App\Events\OrderCanceled;
-use App\Models\Order;
+use App\Events\OrderEvents\OrderAccepted;
+use App\Events\OrderEvents\OrderCanceled;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
+use App\Models\Order;
 use App\Models\User;
 use App\Services\OrderService;
 use App\Traits\ResponseTrait;

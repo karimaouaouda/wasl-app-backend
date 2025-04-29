@@ -1,17 +1,15 @@
 <?php
 
-namespace App\Events;
+namespace App\Events\OrderEvents;
 
 use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PresenceChannel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class OrderCanceled implements ShouldBroadcast
+class OrderCreated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -20,7 +18,6 @@ class OrderCanceled implements ShouldBroadcast
      */
     public function __construct(public Order $order)
     {
-        //
     }
 
     /**
@@ -28,10 +25,11 @@ class OrderCanceled implements ShouldBroadcast
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
+
     public function broadcastOn(): array
     {
         return [
-            new Channel('order.canceled')
+            new Channel('order.created')
         ];
     }
 }

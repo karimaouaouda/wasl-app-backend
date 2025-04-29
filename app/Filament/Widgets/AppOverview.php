@@ -29,9 +29,9 @@ class AppOverview extends BaseWidget
     }
     private function makeUsersStat(): Stat
     {
-        return Stat::make('Users', User::query()->count())
+        return Stat::make('Delivery representatives', User::query()->where('role', 'user')->count())
             ->chart([1, 2, 3, 1 ,1.5, 0.5, 3])
-            ->description("users count")
+            ->description("Delivery representatives count")
             ->icon('heroicon-o-users')
             ->color(Color::Green);
     }
