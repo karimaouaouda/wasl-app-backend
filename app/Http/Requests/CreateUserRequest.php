@@ -5,6 +5,8 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
+use function Laravel\Prompts\password;
+
 class CreateUserRequest extends FormRequest
 {
     /**
@@ -25,7 +27,7 @@ class CreateUserRequest extends FormRequest
         return [
             'name' => ['required', 'min:5', 'max:50'],
             'email' => ['email', 'unique:users,email'],
-            'password' => ['required', 'min:8', 'max:100'],
+            'password' => ['required', 'max:100', Password::min(8)->letters()->numbers()->symbols()],
             'password_confirmation' => ['required', 'min:8', 'max:100']
         ];
     }
