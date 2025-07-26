@@ -8,6 +8,8 @@ use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -35,7 +37,8 @@ class OrderResource extends Resource
                                         ->maxLength(255)
                                         ->placeholder('the order source app'),
                                     Forms\Components\Select::make('status')
-                                        ->options(OrderStatus::class),
+                                        ->options(OrderStatus::class)
+                                        ->default(OrderStatus::PREPARING),
                                 ]),
                             Forms\Components\Wizard\Step::make('restaurant information')
                                 ->schema([
@@ -47,20 +50,25 @@ class OrderResource extends Resource
                                             Forms\Components\TextInput::make('name')
                                                 ->label('restaurant name')
                                                 ->required()
-                                                ->minLength(5)
                                                 ->maxLength(50),
                                             Forms\Components\TextInput::make('logo_url')
                                                 ->required()
                                                 ->url(),
                                             TextInput::make('phone')
                                                 ->tel()
-                                                ->required(),
+                                                ->required()
+                                                ->live(debounce: 500) // ⏱️ يعطيك نصف ثانية قبل ما ينسخ
+                                                ->afterStateUpdated(function (Set $set, $state) {
+                                                    $set('whatsapp', $state);
+                                                }),
+
                                             TextInput::make('whatsapp')
                                                 ->nullable()
                                                 ->tel(),
-                                            Forms\Components\Textarea::make('description')
-                                                ->nullable()
-                                                ->minLength(10)
+
+                                            Forms\Components\Textarea::make('Address')
+                                                ->label('restaurant address')
+                                                ->required()
                                                 ->maxLength(255)
                                         ])->maxItems(1)->minItems(1),
                                 ]),
@@ -73,11 +81,14 @@ class OrderResource extends Resource
                                             Forms\Components\TextInput::make('name')
                                                 ->label('client name')
                                                 ->nullable()
-                                                ->minLength(5)
                                                 ->maxLength(50),
                                             TextInput::make('phone')
                                                 ->tel()
-                                                ->required(),
+                                                ->required()
+                                                ->live(debounce: 500)
+                                                ->afterStateUpdated(function (Set $set, $state) {
+                                                    $set('whatsapp', $state);
+                                                }),
                                             TextInput::make('whatsapp')
                                                 ->nullable()
                                                 ->tel(),
@@ -93,17 +104,14 @@ class OrderResource extends Resource
                                                 ->minValue(1),
                                             Forms\Components\TextInput::make('item_name')
                                                 ->required()
-                                                ->maxLength(255)
-                                                ->minLength(10),
+                                                ->maxLength(255),
                                             Forms\Components\TextInput::make('price')
                                                 ->numeric()
                                                 ->minValue(0.0)
                                                 ->required(),
                                             Forms\Components\Textarea::make('extra_description')
                                                 ->nullable()
-                                                ->minLength(10)
-                                                ->maxLength(255)
-
+                                                ->maxLength(255),
                                         ])->minItems(1)->maxItems(5)
                                 ])
                         ]),
